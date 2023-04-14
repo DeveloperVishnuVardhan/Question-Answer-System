@@ -1,9 +1,23 @@
+"""
+Jyothi Vishnu Vardhan Kolla.
+
+This file contains code to perform exporatory data analysis.
+"""
+
 import numpy as np
 import pandas as pd
 
 
 class ExploratoryAnalysis:
-    def __init__(self, train_tsv, dev_tsv, test_tsv):
+    def __init__(self, train_tsv: str, dev_tsv: str, test_tsv: str):
+        """
+        Initializes the train, dev, test paths with class variables.
+
+        ARGS:
+            train_tsv: Path to train_tsv file.
+            dev_tsv: Path to dev_tsv file.
+            test_tsv: Path to test_tsv file.
+        """
         self.train_tsv_path = train_tsv
         self.dev_tsv_path = dev_tsv
         self.test_tsv_path = test_tsv
