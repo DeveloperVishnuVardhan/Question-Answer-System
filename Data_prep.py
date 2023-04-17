@@ -30,12 +30,14 @@ class PrepareData:
         self.final_test_df = None
 
     def create_data_frames(self):
+        # Creates the train, dev, test, pos_ans dataframes.
         self.pos_ans_tsv_df = pd.read_csv(self.pos_ans_tsv, delimiter="\t")
         self.train_tsv_df = pd.read_csv(self.train_tsv_path, delimiter="\t")
         self.dev_tsv_df = pd.read_csv(self.dev_tsv_path, delimiter="\t")
         self.test_tsv_df = pd.read_csv(self.test_tsv_path, delimiter="\t")
 
     def create_final_df(self, df: pd.DataFrame):
+        # Takes in a dataframe and creates a new df ready for training
         final_dict = {
             'question': [],
             'sentence': [],
@@ -61,6 +63,7 @@ class PrepareData:
         return pd.DataFrame(final_dict)
 
     def Preprocess(self):
+        # Creates the final cleaned datasets and stored them in disk.
         self.create_data_frames()  # Create dataframes.
         # Preprocess the dataframes.
         cleaned_train_tsv_data = self.train_tsv_df[self.train_tsv_df["Label"] == 1]

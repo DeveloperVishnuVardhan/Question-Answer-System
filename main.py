@@ -2,11 +2,16 @@
 Jyothi Vishnu Vardhan Kolla.
 
 This is the main file which performs tasks such as 
-exporataroy data anaysis,..., based on command line inputs.
+exporataroy data anaysis,data-preparation,model-training based on command line inputs.
 """
 import sys
 from Exploratory_data_analysis import ExploratoryAnalysis
 from Data_prep import PrepareData
+from models import Models
+import pandas as pd
+from transformers import BertConfig, BertTokenizer
+from utils import load_model
+from Predictions import Predictions
 
 
 def main(argv):
@@ -14,10 +19,12 @@ def main(argv):
         Main which takes command line arguements and executes the pipeline.
         ARGS:
             argv[1]: if given-1 performs exploratory data analysis on given data.
-            argv[2]: if given-1 preprocess and prepares the final data.
+            argv[2]: if given-1 performing preprocessing and prepares the final data.
     """
     perform_eda = int(argv[1])
     prepare_data = int(argv[2])
+    train_mode = int(argv[3])
+    prediction_mode = int(argv[4])
 
     # Paths to data.
     train_tsv_path = "/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/WikiQACorpus/WikiQA-train.tsv"
@@ -39,6 +46,23 @@ def main(argv):
         ob = PrepareData(train_tsv=train_tsv_path, dev_tsv=dev_tsv_path,
                          test_tsv=test_tsv_path, pos_ans_tsv=pos_ans_path)
         ob.Preprocess()
+
+    if train_mode == 1:  # If given 1 by user the model training begins.
+        train_df = pd.read_csv("data/train.csv")
+        dev_df = pd.read_csv("data/dev.csv")
+        test_df = pd.read_csv("data/test.csv")
+        ob = Models(train_df, dev_df, test_df)
+        ob.train_model()
+
+    if prediction_mode == 1:  # If given 1 by user prediction mode turns on.
+        loaded_model = load_model("Models")
+        tokenizer = BertTokenizer.from_pretrained("Models")
+        ob = Predictions(loaded_model, tokenizer)
+        question = "How does Diaphragm Pump work"
+        context = "A diaphragm pump (also known as a Membrane pump, Air Operated Double Diaphragm Pump (AODD) or Pneumatic Diaphragm Pump) is a positive displacement pump that uses a combination of the reciprocating action of a rubber , thermoplastic or teflon diaphragm and suitable valves either side of the diaphragm ( check valve , butterfly valves, flap valves, or any other form of shut-off valves) to pump a fluid ."
+        # Make a prediction using the loaded model and tokenizer
+        answer = ob.make_prediction(question, context)
+        print("Answer:", answer)
 
 
 if __name__ == "__main__":
