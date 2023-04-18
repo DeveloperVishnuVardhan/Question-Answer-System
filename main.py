@@ -11,21 +11,24 @@ from models import Models
 import pandas as pd
 from transformers import BertConfig, BertTokenizer
 from utils import load_model
-from Predictions import Predictions
+from Predictions import Predictions, Evaluations
 
 
 def main(argv):
     """
         Main which takes command line arguements and executes the pipeline.
-        
+
         ARGS:
             argv[1]: if given-1 performs exploratory data analysis on given data.
             argv[2]: if given-1 performing preprocessing and prepares the final data.
+            argv[3]: if given-1 performs the training.
+            argv[4]: if given-1 performs predictions based on given inputs.
     """
     perform_eda = int(argv[1])
     prepare_data = int(argv[2])
     train_mode = int(argv[3])
     prediction_mode = int(argv[4])
+    evaluation_mode = int(argv[5])
 
     # Paths to data.
     train_tsv_path = "/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/WikiQACorpus/WikiQA-train.tsv"
@@ -65,6 +68,19 @@ def main(argv):
         answer = ob.make_prediction(question, context)
         print("Answer:", answer)
 
+    if evaluation_mode == 1:  # If given 1 by user computes and displays the metrics.
+        loaded_model = load_model("Models")
+        tokenizer = BertTokenizer.from_pretrained("Models")
+        train_df = pd.read_csv("data/train.csv")
+        dev_df = pd.read_csv("data/dev.csv")
+        test_df = pd.read_csv("data/test.csv")
+        ob1 = Predictions(loaded_model, tokenizer) # Predictions object.
+        ob2 = Evaluations(train_df, dev_df, test_df, loaded_model, tokenizer, ob1) # Evaluations object.
+        ob2.compute_store_predictions()
+        pr, re, f1 = ob2.display_metrics(pd.read_csv("/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/Chatbot-development/data/predictions.csv"))
+        print(f"Precision is {pr} and recall is {re} and f1-score is {f1}")
+
 
 if __name__ == "__main__":
     main(sys.argv)
+ 

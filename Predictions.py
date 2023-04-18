@@ -1,6 +1,9 @@
 import numpy as np
 import tensorflow as tf
 from transformers import BertTokenizer
+import pandas as pd
+import os
+from tqdm import tqdm
 
 
 class Predictions:
@@ -89,3 +92,83 @@ class Predictions:
             answer = ""
 
         return answer
+
+
+class Evaluations:
+    def __init__(self, train_df, dev_df, test_df, model, tokens, pred_object):
+        self.train_df = train_df
+        self.dev_df = dev_df
+        self.test_df = test_df
+        self.model = model
+        self.tokenizer = tokens
+        self.final_data = pd.concat(
+            [self.train_df, self.dev_df, self.test_df], ignore_index=True)
+        self.pred_object = pred_object
+
+    def compute_store_predictions(self):
+        if not os.path.exists('data/predictions.csv'):
+            predict_dict = {
+                'actual_answer': [],
+                'predicted_answer': []
+            }
+            print(self.final_data.shape[0])
+            for i, row in tqdm(self.final_data.iterrows()):
+                question = row['question']
+                context = row['sentence']
+                actual_answer = row['answer']
+                predicted_answer = self.pred_object.make_prediction(
+                    question, context)
+
+                predict_dict['actual_answer'].append(actual_answer)
+                predict_dict['predicted_answer'].append(predicted_answer)
+
+            df = pd.DataFrame(predict_dict)
+            df.to_csv("data/predictions.csv", index=False)
+
+    def precision_recall_f1(self, actual_answer: pd.Series, predicted_answer: pd.Series):
+        if type(actual_answer) == float or type(predicted_answer) == float:
+            return 0, 0, 0
+        actual_tokens = set(actual_answer.split())
+        predicted_tokens = set(predicted_answer.split())
+
+        # Find the common tokens between actual and predicted.
+        common_tokens = actual_tokens.intersection(predicted_tokens)
+
+        if len(predicted_tokens) == 0:
+            precision = 0
+        else:
+            precision = len(common_tokens) / len(predicted_tokens)
+
+        if len(actual_tokens) == 0:
+            recall = 0
+        else:
+            recall = len(common_tokens) / len(actual_tokens)
+
+        if precision + recall == 0:
+            f1 = 0
+        else:
+            f1 = 2 * (precision * recall) / (precision + recall)
+
+        return precision, recall, f1
+
+    def display_metrics(self, dataframe: pd.DataFrame):
+        total_precision = 0
+        total_recall = 0
+        total_f1 = 0
+        num_examples = len(dataframe)
+
+        for index, row in dataframe.iterrows():
+            actual_answer = row['actual_answer']
+            predicted_answer = row['predicted_answer']
+            p, r, f1 = self.precision_recall_f1(
+                actual_answer, predicted_answer)
+
+            total_precision += p
+            total_recall += r
+            total_f1 += f1
+
+        overall_precision = total_precision / num_examples
+        overall_recall = total_recall / num_examples
+        overall_f1 = total_f1 / num_examples
+
+        return overall_precision, overall_recall, overall_f1
