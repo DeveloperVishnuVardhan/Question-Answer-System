@@ -1,7 +1,7 @@
 """
 Jyothi Vishnu Vardhan Kolla.
 
-This is the main file which performs tasks such as 
+This is the main file which performs tasks such as
 exporataroy data anaysis,data-preparation,model-training based on command line inputs.
 """
 import sys
@@ -74,13 +74,15 @@ def main(argv):
         train_df = pd.read_csv("data/train.csv")
         dev_df = pd.read_csv("data/dev.csv")
         test_df = pd.read_csv("data/test.csv")
-        ob1 = Predictions(loaded_model, tokenizer) # Predictions object.
-        ob2 = Evaluations(train_df, dev_df, test_df, loaded_model, tokenizer, ob1) # Evaluations object.
+        ob1 = Predictions(loaded_model, tokenizer)  # Predictions object.
+        # Evaluations object.
+        ob2 = Evaluations(train_df, dev_df, test_df,
+                          loaded_model, tokenizer, ob1)
         ob2.compute_store_predictions()
-        pr, re, f1 = ob2.display_metrics(pd.read_csv("/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/Chatbot-development/data/predictions.csv"))
+        pr, re, f1 = ob2.display_metrics(pd.read_csv(
+            "/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/Chatbot-development/data/predictions.csv"))
         print(f"Precision is {pr} and recall is {re} and f1-score is {f1}")
 
 
 if __name__ == "__main__":
     main(sys.argv)
- 
