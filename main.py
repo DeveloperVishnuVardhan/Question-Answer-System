@@ -17,6 +17,7 @@ from Predictions import Predictions
 def main(argv):
     """
         Main which takes command line arguements and executes the pipeline.
+        
         ARGS:
             argv[1]: if given-1 performs exploratory data analysis on given data.
             argv[2]: if given-1 performing preprocessing and prepares the final data.
@@ -58,7 +59,7 @@ def main(argv):
         loaded_model = load_model("Models")
         tokenizer = BertTokenizer.from_pretrained("Models")
         ob = Predictions(loaded_model, tokenizer)
-        question = "How does Diaphragm Pump work"
+        question = "How will Diaphragm Pump work"
         context = "A diaphragm pump (also known as a Membrane pump, Air Operated Double Diaphragm Pump (AODD) or Pneumatic Diaphragm Pump) is a positive displacement pump that uses a combination of the reciprocating action of a rubber , thermoplastic or teflon diaphragm and suitable valves either side of the diaphragm ( check valve , butterfly valves, flap valves, or any other form of shut-off valves) to pump a fluid ."
         # Make a prediction using the loaded model and tokenizer
         answer = ob.make_prediction(question, context)
