@@ -81,15 +81,18 @@ def main(argv):
         train_df = pd.read_csv("data/train.csv")
         dev_df = pd.read_csv("data/dev.csv")
         test_df = pd.read_csv("data/test.csv")
+        eval_df = pd.read_csv("data/eval.csv")
         ob1 = Predictions(loaded_model, tokenizer)  # Predictions object.
         # Evaluations object.
-        ob2 = Evaluations(train_df, dev_df, test_df,
+        ob2 = Evaluations(train_df, dev_df, test_df, eval_df,
                           loaded_model, tokenizer, ob1)
         # Compute predictions and store them in a csv_file.
         ob2.compute_store_predictions()
         pr, re, f1 = ob2.display_metrics(pd.read_csv(
             "/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/Chatbot-development/data/predictions.csv"))
-        print(f"Precision is {pr} and recall is {re} and f1-score is {f1}")
+        print(f"train data:Precision is {pr} and recall is {re} and f1-score is {f1}")
+        pr, re, f1 = ob2.display_metrics(pd.read_csv("/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/Chatbot-development/data/eval_predictions.csv"))
+        print(f"test data:Precision is {pr} and recall is {re} and f1-score is {f1}")
 
 
 if __name__ == "__main__":

@@ -95,7 +95,7 @@ class Predictions:
 
 
 class Evaluations:
-    def __init__(self, train_df: pd.DataFrame, dev_df: pd.DataFrame, test_df: pd.DataFrame, model: tf.Module, tokens: BertTokenizer, pred_object: Predictions):
+    def __init__(self, train_df: pd.DataFrame, dev_df: pd.DataFrame, test_df: pd.DataFrame, eval_df: pd.DataFrame, model: tf.Module, tokens: BertTokenizer, pred_object: Predictions):
         """
         Initializes the class with train, dev, test, fine-tuned
         model, fine-tuned tokenizers and creates the final data required for 
@@ -112,32 +112,41 @@ class Evaluations:
         self.train_df = train_df
         self.dev_df = dev_df
         self.test_df = test_df
+        self.eval_df = eval_df
         self.model = model
         self.tokenizer = tokens
         self.final_data = pd.concat(
             [self.train_df, self.dev_df, self.test_df], ignore_index=True)
         self.pred_object = pred_object
 
+    def create_df(self, df: pd.DataFrame):
+        predict_dict = {
+            'actual_answer': [],
+            'predicted_answer': []
+        }
+        print(self.final_data.shape[0])
+        for i, row in tqdm(df.iterrows()):
+            question = row['question']
+            context = row['sentence']
+            actual_answer = row['answer']
+            predicted_answer = self.pred_object.make_prediction(
+                question, context)
+
+            predict_dict['actual_answer'].append(actual_answer)
+            predict_dict['predicted_answer'].append(predicted_answer)
+
+        df = pd.DataFrame(predict_dict)
+        return df
+
     def compute_store_predictions(self):
         # Computes the predicted answer for each question and stores them.
         if not os.path.exists('data/predictions.csv'):
-            predict_dict = {
-                'actual_answer': [],
-                'predicted_answer': []
-            }
-            print(self.final_data.shape[0])
-            for i, row in tqdm(self.final_data.iterrows()):
-                question = row['question']
-                context = row['sentence']
-                actual_answer = row['answer']
-                predicted_answer = self.pred_object.make_prediction(
-                    question, context)
-
-                predict_dict['actual_answer'].append(actual_answer)
-                predict_dict['predicted_answer'].append(predicted_answer)
-
-            df = pd.DataFrame(predict_dict)
+            df = self.create_df(self.final_data)
             df.to_csv("data/predictions.csv", index=False)
+
+        if not os.path.exists('data/eval_predictions.csv'):
+            df1 = self.create_df(self.eval_df)
+            df1.to_csv("data/eval_predictions.csv", index=False)
 
     def precision_recall_f1(self, actual_answer: pd.Series, predicted_answer: pd.Series):
         """
@@ -152,6 +161,8 @@ class Evaluations:
         """
         if type(actual_answer) == float or type(predicted_answer) == float:
             return 0, 0, 0
+        actual_answer = actual_answer.lower()
+        predicted_answer = predicted_answer.lower()
         actual_tokens = set(actual_answer.split())
         predicted_tokens = set(predicted_answer.split())
 
@@ -179,7 +190,7 @@ class Evaluations:
         """
         Takes in a dataframe of actual and predicted answers
         and returns the overall token level precsion,
-        recall, f1_scores.
+        recall, f1-score.
         """
         total_precision = 0
         total_recall = 0
