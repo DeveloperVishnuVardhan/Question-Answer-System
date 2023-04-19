@@ -23,6 +23,7 @@ def main(argv):
             argv[2]: if given-1 performing preprocessing and prepares the final data.
             argv[3]: if given-1 performs the training.
             argv[4]: if given-1 performs predictions based on given inputs.
+            argv[5]: if given-1 performs evaluations and displays them.
     """
     perform_eda = int(argv[1])
     prepare_data = int(argv[2])
@@ -49,25 +50,31 @@ def main(argv):
         # Initialize the PrepareData object.
         ob = PrepareData(train_tsv=train_tsv_path, dev_tsv=dev_tsv_path,
                          test_tsv=test_tsv_path, pos_ans_tsv=pos_ans_path)
+        # Preprocess the data and prepares the final data that is ready for training.
         ob.Preprocess()
 
+    # Note: Run prepare data atleast once before running for training data to be available.
     if train_mode == 1:  # If given 1 by user the model training begins.
-        train_df = pd.read_csv("data/train.csv")
-        dev_df = pd.read_csv("data/dev.csv")
-        test_df = pd.read_csv("data/test.csv")
+        train_df = pd.read_csv("data/train.csv")  # Load the train_df.
+        dev_df = pd.read_csv("data/dev.csv")  # Load the dev_df.
+        test_df = pd.read_csv("data/test.csv")  # Load the test_df
         ob = Models(train_df, dev_df, test_df)
-        ob.train_model()
+        ob.train_model()  # Train the model.
 
+    # Note: Run train_model atleast once before you run this.
     if prediction_mode == 1:  # If given 1 by user prediction mode turns on.
         loaded_model = load_model("Models")
+        # Load tokenizer from fine-tuned model.
         tokenizer = BertTokenizer.from_pretrained("Models")
+        # Initialize the Predictions object.
         ob = Predictions(loaded_model, tokenizer)
-        question = "How will Diaphragm Pump work"
+        question = "How will Diaphragm Pump work"  # Input question
         context = "A diaphragm pump (also known as a Membrane pump, Air Operated Double Diaphragm Pump (AODD) or Pneumatic Diaphragm Pump) is a positive displacement pump that uses a combination of the reciprocating action of a rubber , thermoplastic or teflon diaphragm and suitable valves either side of the diaphragm ( check valve , butterfly valves, flap valves, or any other form of shut-off valves) to pump a fluid ."
         # Make a prediction using the loaded model and tokenizer
         answer = ob.make_prediction(question, context)
         print("Answer:", answer)
 
+    # Note: Run train_model atleast once before you run this.
     if evaluation_mode == 1:  # If given 1 by user computes and displays the metrics.
         loaded_model = load_model("Models")
         tokenizer = BertTokenizer.from_pretrained("Models")
@@ -78,6 +85,7 @@ def main(argv):
         # Evaluations object.
         ob2 = Evaluations(train_df, dev_df, test_df,
                           loaded_model, tokenizer, ob1)
+        # Compute predictions and store them in a csv_file.
         ob2.compute_store_predictions()
         pr, re, f1 = ob2.display_metrics(pd.read_csv(
             "/Users/jyothivishnuvardhankolla/Desktop/SoftinWay/Chatbot-development/data/predictions.csv"))

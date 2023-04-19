@@ -11,7 +11,7 @@ class PrepareData:
         ARGS:
             train_tsv: Path to train_tsv file.
             dev_tsv: Path to dev_tsv file.
-            test_tsv: 
+            test_tsv: Path to test_tsv file.
         """
         self.train_tsv_path = train_tsv
         self.dev_tsv_path = dev_tsv
@@ -45,6 +45,7 @@ class PrepareData:
         }
 
         for i, row in df.iterrows():
+            # Iterate through each row and create new row for each of correct answer.
             if pd.notna(row['AnswerPhrase1']) and row['AnswerPhrase1'] != 'NO_ANS':
                 final_dict['question'].append(row['Question'])
                 final_dict['sentence'].append(row['Sentence'])
@@ -65,7 +66,7 @@ class PrepareData:
     def Preprocess(self):
         # Creates the final cleaned datasets and stored them in disk.
         self.create_data_frames()  # Create dataframes.
-        # Preprocess the dataframes.
+        # Preprocess the dataframes(eliminate all rows with incorrect sentences.)
         cleaned_train_tsv_data = self.train_tsv_df[self.train_tsv_df["Label"] == 1]
         cleaned_dev_tsv_data = self.dev_tsv_df[self.dev_tsv_df["Label"] == 1]
         cleaned_test_tsv_data = self.test_tsv_df[self.test_tsv_df["Label"] == 1]

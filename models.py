@@ -34,11 +34,11 @@ class Models:
         self.final_data = pd.concat(
             [self.train_data, self.dev_data, self.test_data], ignore_index=True)
         self.sequence_length = 384
-        # Load pretrained bert model.
+        # Load pretrained tokenizer from bert model.
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
     def prepare_data(self):
-        # Load the tokenizer.
+        # Prepare the x_train and y_train splits to make it ready for training.
         x_train, y_train = preprocess_data(questions=self.final_data['question'],
                                            sentences=self.final_data['sentence'],
                                            answers=self.final_data['answer'],

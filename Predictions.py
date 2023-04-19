@@ -11,7 +11,7 @@ class Predictions:
         """
         Initializes the class with model and tokenizer values.
         model: The Pretrained model.
-        tokenizer: tokenizer with pretrained weights.
+        tokenizer: tokenizer with fine-tuned model weights.
         """
         self.model = model
         self.tokenizer = tokenizer
@@ -95,7 +95,20 @@ class Predictions:
 
 
 class Evaluations:
-    def __init__(self, train_df, dev_df, test_df, model, tokens, pred_object):
+    def __init__(self, train_df: pd.DataFrame, dev_df: pd.DataFrame, test_df: pd.DataFrame, model: tf.Module, tokens: BertTokenizer, pred_object: Predictions):
+        """
+        Initializes the class with train, dev, test, fine-tuned
+        model, fine-tuned tokenizers and creates the final data required for 
+        performing evaluations.
+
+        ARGS:
+            train_df: cleaned train data_frame.
+            dev_df: cleaned dev data_frame.
+            test_df: cleaned test data_frame.
+            model: fine-tuned model.
+            tokens: fine-tuned tokenizer.
+            pred_object: Predictions class object.
+        """
         self.train_df = train_df
         self.dev_df = dev_df
         self.test_df = test_df
@@ -106,6 +119,7 @@ class Evaluations:
         self.pred_object = pred_object
 
     def compute_store_predictions(self):
+        # Computes the predicted answer for each question and stores them.
         if not os.path.exists('data/predictions.csv'):
             predict_dict = {
                 'actual_answer': [],
@@ -126,6 +140,16 @@ class Evaluations:
             df.to_csv("data/predictions.csv", index=False)
 
     def precision_recall_f1(self, actual_answer: pd.Series, predicted_answer: pd.Series):
+        """
+        Computes token level Precision, Recall, F1-score for the complete data.
+
+        ARGS:
+            actual_answer: A pandas series containing the actual answers.
+            predicted_answer: A pandas series containing the predicted answers.
+
+        Returns:
+            returns the token level Precision, Recall, F1. 
+        """
         if type(actual_answer) == float or type(predicted_answer) == float:
             return 0, 0, 0
         actual_tokens = set(actual_answer.split())
@@ -152,6 +176,11 @@ class Evaluations:
         return precision, recall, f1
 
     def display_metrics(self, dataframe: pd.DataFrame):
+        """
+        Takes in a dataframe of actual and predicted answers
+        and returns the overall token level precsion,
+        recall, f1_scores.
+        """
         total_precision = 0
         total_recall = 0
         total_f1 = 0
