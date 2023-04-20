@@ -4,6 +4,7 @@ from transformers import BertTokenizer
 import pandas as pd
 import os
 from tqdm import tqdm
+from utils import valid_string
 
 
 class Predictions:
@@ -148,21 +149,21 @@ class Evaluations:
             df1 = self.create_df(self.eval_df)
             df1.to_csv("data/eval_predictions.csv", index=False)
 
-    def precision_recall_f1(self, actual_answer: pd.Series, predicted_answer: pd.Series):
+    def precision_recall_f1(self, actual_answer: str, predicted_answer: str):
         """
         Computes token level Precision, Recall, F1-score for the complete data.
 
         ARGS:
-            actual_answer: A pandas series containing the actual answers.
-            predicted_answer: A pandas series containing the predicted answers.
+            actual_answer: A string containing the actual answers.
+            predicted_answer: A string containing the predicted answers.
 
         Returns:
             returns the token level Precision, Recall, F1. 
         """
         if type(actual_answer) == float or type(predicted_answer) == float:
             return 0, 0, 0
-        actual_answer = actual_answer.lower()
-        predicted_answer = predicted_answer.lower()
+        actual_answer = valid_string(actual_answer)
+        predicted_answer = valid_string(predicted_answer)
         actual_tokens = set(actual_answer.split())
         predicted_tokens = set(predicted_answer.split())
 

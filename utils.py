@@ -1,6 +1,7 @@
 import pandas as pd
 import tensorflow as tf
 from transformers import BertConfig, BertTokenizer, TFBertModel
+import re
 
 
 def find_start_end_pos(sentence: str, answer: str, tokenizer: BertTokenizer):
@@ -101,3 +102,8 @@ def load_model(model_path: str):
     qa_model = create_qa_model(config)
     qa_model.load_weights(model_path + "/tf_model.h5")
     return qa_model
+
+def valid_string(string: str):
+    words = re.findall(r'\b\w+\b', string)
+    output_string = ' '.join(words)
+    return output_string
