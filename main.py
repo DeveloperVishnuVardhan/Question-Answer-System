@@ -2,7 +2,7 @@
 Jyothi Vishnu Vardhan Kolla.
 
 This is the main file which performs tasks such as
-exporataroy data anaysis,data-preparation,model-training based on command line inputs.
+explorataroy data anaysis,data-preparation,model-training based on command line inputs.
 """
 import sys
 from Exploratory_data_analysis import ExploratoryAnalysis
