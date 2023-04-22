@@ -1,4 +1,4 @@
-## **Task:** Fine-tune a pre-trained Transformer-based chatbot using Tensorflow on the WikiQA corpus dataset.
+## **Task:** Build a Question Answer System.
 
 
 ### Approach:
